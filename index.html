@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="高雄市五大刑事案件資訊" />
+    <meta name="author" content="ツキノリュウ" />
+    <title>高雄市五大刑事案件資訊</title>
+    <!-- reboot -->
+    <link href="css/bootstrap-reboot.min.css" rel="stylesheet" />
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100;300;400;500;700;900&display=swap">
+    <!-- css.gg -->
+    <link href='https://css.gg/spinner-alt.css' rel='stylesheet'>
+    <!-- site -->
+    <link href="css/main.css" rel="stylesheet" />
+    <!-- Vue 3 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.0.2/dist/vue.global.prod.js"></script>
+</head>
+
+<body>
+    <div id="app" v-cloak>
+        <h1 class="mainTitle">高雄市五大刑事案件資訊</h1>
+        <section class="controlPanel">
+            <select class="dateSelector" name="yearSelector" v-model="selectCurrentYear" @change="filterMonth">
+                <option value="0" hidden>請設定查詢年度</option>
+                <option :value="item" v-for="(item, index) in dataYear" :key="index">{{ item }}</option>
+            </select>
+            <select class="dateSelector" name="monthSelector" v-model="selectCurrentMonth" v-if="showOption">
+                <option value="0" hidden>請設定查詢月份</option>
+                <option :value="item" v-for="(item, index) in dataMonth" :key="index">{{ item }}</option>
+            </select>
+            <button type="button" class="searchBtn" @click="callChart">查詢</button>
+        </section>
+        <main class="chartWrap">
+            <div class="loading" v-if="isLoading" @click.self="isLoading = false">
+                <transition name="scale" mode="out-in" appear>
+                    <div class="message" v-if="showMessage">{{ message }}
+                        <button type="button" class="message__button" @click="isLoading = false">關閉</button>
+                    </div>
+                    <i class="gg-spinner-alt" v-else></i>
+                </transition>
+            </div>
+            <canvas id="chart"></canvas>
+        </main>
+        <footer class="footer">&copy; 2020<span v-if="currentYear !== 2020"> - {{ currentYear }}</span> Design &amp;
+            Coding by ツキノリュウ.</footer>
+    </div>
+
+    <!-- axios -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+    <!-- site -->
+    <script src="js/main.js"></script>
+</body>
+
+</html>
