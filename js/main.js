@@ -29,118 +29,111 @@ const system = {
             });
         },
         chartYearData() {
-            return this.dataBase.filter(item => item.年度 === this.selectCurrentYear);
+            return this.dataBase.filter(item => item['年度'] === this.selectCurrentYear);
         },
         chartMonthData() {
-            return this.chartYearData.filter(item => item.月份 === this.selectCurrentMonth);
+            return this.chartYearData.filter(item => item['月份'] === this.selectCurrentMonth);
         },
         chartLabels() {
-            return this.chartMonthData.map(item => item.案件別).filter((element, index, array) =>
+            return this.chartMonthData.map(item => item['案件別']).filter((element, index, array) =>
                 array.indexOf(element) === index).map(item => item.substr(1));
         },
-        chartDatasetsLabels() {
-            return this.chartMonthData.map(item => item['發生數(件)']);
-        }
     },
     methods: {
         getDataBase() {
-            const api = 'https://api.kcg.gov.tw/api/service/Get/0a9699b8-9a4b-434d-ae00-eb75e1901123';
-            let vm = this;
-            vm.isLoading = true;
+            const api = 'https://api.kcg.gov.tw/api/service/Get/99c8d84a-3553-4fe7-8321-f2f85c7a7715';
+            this.isLoading = true;
             axios({
                 method: 'get',
                 url: api,
                 'Content-Type': 'application/json',
             }).then(response => {
-                vm.dataBase = response.data.data;
-                vm.filterYear();
-                vm.$nextTick(() => {
-                    vm.isLoading = false;
+                const { data } = response.data
+                this.dataBase = data;
+                this.filterYear();
+                this.$nextTick(() => {
+                    this.isLoading = false;
                 });
             }).catch((error) => {
-                vm.showMessage = true;
-                vm.message = '高雄市政府提供的 API 服務暫時無法使用，請稍後再試。';
-                console.log(error);
+                this.showMessage = true;
+                this.message = '高雄市政府提供的 API 服務暫時無法使用，請稍後再試。';
             });
         },
         filterYear() {
-            let tempTotalData = this.dataBase.map(item => item.年度);
+            const tempTotalData = this.dataBase.map(item => item['年度']);
 
             this.dataYear = tempTotalData.filter((element, index, array) => array.indexOf(element) === index);
         },
         filterMonth() {
-            let checkHasData = this.chartYearData.filter(item => item['發生數(件)'] !== ''),
-                tempTotalData = checkHasData.map(item => item.月份),
-                notRepeatMounth = tempTotalData.filter((element, index, array) => array.indexOf(element) === index);
+            const checkHasData = this.chartYearData.filter(item => item['發生數(件)'] !== '');
+            const tempTotalData = checkHasData.map(item => item.月份);
+            const notRepeatMonth = tempTotalData.filter((element, index, array) => array.indexOf(element) === index);
 
             this.dataMonth = [];
             this.selectCurrentMonth = '0';
-            this.dataMonth = notRepeatMounth;
+            this.dataMonth = notRepeatMonth;
             this.showOption = true;
         },
         randomColor() {
-            let r = Math.floor(Math.random() * 255);
-            let g = Math.floor(Math.random() * 255);
-            let b = Math.floor(Math.random() * 255);
+            const r = Math.floor(Math.random() * 255);
+            const g = Math.floor(Math.random() * 255);
+            const b = Math.floor(Math.random() * 255);
 
-            return "rgba(" + r + "," + g + "," + b + ", 1)";
+            return `rgba(${r},${g},${b}, 1)`;
         },
         poolColors(n, colors) {
-            let pool = [];
+            const pool = [];
             for (i = 0; i < n; i++) {
                 pool.push(colors);
             }
             return pool;
         },
         organizeStrings(str) {
-            let text = str.replace(/[,%]/g, "");
-            return text;
+            return str.replace(/[,%]/g, "");
         },
         collationData(data, filter) {
-            const vm = this;
-            let array = data.map(item => item[filter]),
-                newArray = array.map(item => vm.organizeStrings(item));
+            const array = data.map(item => item[filter]);
+            const newArray = array.map(item => this.organizeStrings(item));
             return newArray;
         },
         callChart() {
-            const vm = this;
-            let data = vm.chartMonthData;
+            let data = this.chartMonthData;
             let showData = { // 圖表使用的數據設定
-                labels: vm.chartLabels,
+                labels: this.chartLabels,
                 datasets: [{
                     label: '發生數(件)',
-                    data: vm.collationData(data, '發生數(件)'),
-                    backgroundColor: vm.poolColors(data.length, vm.randomColor()),
+                    data: this.collationData(data, '發生數'),
+                    backgroundColor: this.poolColors(data.length, this.randomColor()),
                 }, {
                     label: '破獲數(件)',
-                    data: vm.collationData(data, '破獲數(件)'),
-                    backgroundColor: vm.poolColors(data.length, vm.randomColor()),
+                    data: this.collationData(data, '破獲數'),
+                    backgroundColor: this.poolColors(data.length, this.randomColor()),
                 }, {
                     label: '破獲率(%)',
-                    data: vm.collationData(data, '破獲率(％)'),
-                    backgroundColor: vm.poolColors(data.length, vm.randomColor()),
+                    data: this.collationData(data, '破獲率'),
+                    backgroundColor: this.poolColors(data.length, this.randomColor()),
                 }]
             };
 
-            if (vm.selectCurrentYear === '0') {
-                vm.isLoading = true;
-                vm.showMessage = true;
-                vm.message = '請設定查詢年度';
-            } else if (vm.selectCurrentMonth === '0') {
-                vm.isLoading = true;
-                vm.showMessage = true;
-                vm.message = '請設定查詢月份';
+            if (this.selectCurrentYear === '0') {
+                this.isLoading = true;
+                this.showMessage = true;
+                this.message = '請設定查詢年度';
+            } else if (this.selectCurrentMonth === '0') {
+                this.isLoading = true;
+                this.showMessage = true;
+                this.message = '請設定查詢月份';
             } else {
-                vm.showMessage = false;
-                vm.isLoading = true;
+                this.showMessage = false;
+                this.isLoading = true;
                 // 更新數據
-                vm.chart.config.data = showData;
-                vm.$nextTick(() => {
+                this.chart.config.data = showData;
+                this.$nextTick(() => {
                     setTimeout(() => {
-                        vm.isLoading = false;
+                        this.isLoading = false;
                     }, 250);
                 });
-                vm.chart.update();
+                this.chart.update();
             }
         }
     },
